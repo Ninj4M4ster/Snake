@@ -81,11 +81,23 @@ def move(snake_list, root):
         snake_move_id = root.after(150, move, snake_list, root)
 
 
+def end_game():
+    global game_frame
+    end_frame = tk.Frame(game_frame, highlightthickness=2, highlightbackground="black", bg='#616361')
+    end_frame.place(x=650, y=250)
+
+    end_text = tk.Label(end_frame, text="End", bg="#616361", fg="#25b825")
+    score_text = tk.Label(end_frame, text=f"Your score is: {score.get().split()[1]}", bg="#616361", fg="#25b825")
+    new_game_button = tk.Button(end_frame, text="Start new game", bg="#616361", fg="#25b825")
+    end_text.pack()
+    score_text.pack()
+    new_game_button.pack()
+
 def stop(root):
     global total_end
     total_end = True
     root.after_cancel(snake_move_id)
-    print("stopped the snake")
+    end_game()
 
 
 def change_direction(new_direction, snake_list, root):
@@ -171,7 +183,7 @@ def place_apple(snake_list):
                                    fill='red', tags='apple')
 
 
-def start(snake_list, root, coordinates, start_button):
+def start(snake_list, root, start_button):
     start_button.destroy()
 
     global score
@@ -221,7 +233,7 @@ def create_game():
     title = tk.Label(upper_frame, text="Snake 1.0", width=198, height=5, bg='#353738', fg='#25b825')
     title.pack()
     start_button = tk.Button(upper_frame, text="Start game", width=12, height=2, bg='#616361', fg='#25b825',
-                             command=lambda: start(snake_list, root, coordinates, start_button))
+                             command=lambda: start(snake_list, root, start_button))
     start_button.pack()
 
     global game_frame
