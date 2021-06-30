@@ -49,7 +49,7 @@ def move(snake_list, root):
             or int(snake_list[0].place_info()['x']) + direction[0] > 1368 or \
             int(snake_list[0].place_info()['y']) + direction[1] < 4 \
             or int(snake_list[0].place_info()['y']) + direction[1] > 579:
-        stop(root)
+        stop(root, snake_list)
         end = True
     else:
         first_pos_x = int(snake_list[0].place_info()['x']) + direction[0]
@@ -57,7 +57,7 @@ def move(snake_list, root):
         for widget in snake_list:
             if int(widget.place_info()['x']) == first_pos_x\
                     and int(widget.place_info()['y']) == first_pos_y:
-                stop(root)
+                stop(root, snake_list)
                 end = True
     if not end:
         i = len(snake_list) - 1
@@ -80,24 +80,61 @@ def move(snake_list, root):
 
         snake_move_id = root.after(150, move, snake_list, root)
 
+def restart_game(end_frame, snake_list, root):
+    global game_frame
+    global coordinates
+    global total_end
+    global score
+    total_end = False
 
-def end_game():
+    score.set("Score: 0")
+
+    for piece in snake_list:
+        piece.destroy()
+
+    del snake_list
+    end_frame.destroy()
+
+    snake_list = create_snake(game_frame, coordinates)
+    move(snake_list, root)
+
+    root.unbind("w")
+    root.unbind("a")
+    root.unbind("s")
+    root.unbind("d")
+    root.unbind("<Up>")
+    root.unbind("<Down>")
+    root.unbind("<Right>")
+    root.unbind("<Left>")
+
+    root.bind("w", lambda e: change_direction("n", snake_list, root))
+    root.bind("s", lambda e: change_direction("s", snake_list, root))
+    root.bind("d", lambda e: change_direction("e", snake_list, root))
+    root.bind("a", lambda e: change_direction("w", snake_list, root))
+
+    root.bind("<Up>", lambda e: change_direction("n", snake_list, root))
+    root.bind("<Down>", lambda e: change_direction("s", snake_list, root))
+    root.bind("<Right>", lambda e: change_direction("e", snake_list, root))
+    root.bind("<Left>", lambda e: change_direction("w", snake_list, root))
+
+def end_game(snake_list, root):
     global game_frame
     end_frame = tk.Frame(game_frame, highlightthickness=2, highlightbackground="black", bg='#616361')
     end_frame.place(x=650, y=250)
 
     end_text = tk.Label(end_frame, text="End", bg="#616361", fg="#25b825")
     score_text = tk.Label(end_frame, text=f"Your score is: {score.get().split()[1]}", bg="#616361", fg="#25b825")
-    new_game_button = tk.Button(end_frame, text="Start new game", bg="#616361", fg="#25b825")
+    new_game_button = tk.Button(end_frame, text="Start new game", bg="#616361", fg="#25b825",
+                                command=lambda: restart_game(end_frame, snake_list, root))
     end_text.pack()
     score_text.pack()
     new_game_button.pack()
 
-def stop(root):
+def stop(root, snake_list):
     global total_end
     total_end = True
     root.after_cancel(snake_move_id)
-    end_game()
+    end_game(snake_list, root)
 
 
 def change_direction(new_direction, snake_list, root):
@@ -134,7 +171,7 @@ def change_direction(new_direction, snake_list, root):
                     or int(snake_list[0].place_info()['x']) + direction[0] > 1368 or \
                     int(snake_list[0].place_info()['y']) + direction[1] < 4 \
                     or int(snake_list[0].place_info()['y']) + direction[1] > 579:
-                stop(root)
+                stop(root, snake_list)
                 end = True
             else:
                 first_pos_x = int(snake_list[0].place_info()['x']) + direction[0]
@@ -142,7 +179,7 @@ def change_direction(new_direction, snake_list, root):
                 for widget in snake_list:
                     if int(widget.place_info()['x']) == first_pos_x \
                             and int(widget.place_info()['y']) == first_pos_y:
-                        stop(root)
+                        stop(root, snake_list)
                         end = True
             if not end:
                 i = len(snake_list) - 1
